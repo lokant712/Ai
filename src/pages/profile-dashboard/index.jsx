@@ -8,6 +8,7 @@ import ProfileStats from './components/ProfileStats';
 import ProfilePicture from './components/ProfilePicture';
 import profileService from '../../services/profileService';
 import { fixExistingUserData } from '../../utils/fixExistingUserData';
+import { checkProfileData } from '../../utils/checkProfileData';
 
 const ProfileDashboard = () => {
   const navigate = useNavigate();
@@ -39,30 +40,44 @@ const ProfileDashboard = () => {
   const loadProfileData = async (userId) => {
     setIsLoading(true);
     try {
-      console.log('Loading profile data for user:', userId);
+      console.log('🔍 Loading profile data for user:', userId);
       
       const [profileData, statsData] = await Promise.all([
         profileService.getUserProfile(userId),
         profileService.getUserStats(userId)
       ]);
 
-      console.log('Profile data loaded:', profileData);
-      console.log('Stats data loaded:', statsData);
+      console.log('📋 Full Profile data loaded:', profileData);
+      console.log('📍 Address fields specifically:', {
+        address: profileData?.address,
+        city: profileData?.city,
+        state: profileData?.state,
+        zip_code: profileData?.zip_code
+      });
+      console.log('📊 Stats data loaded:', statsData);
 
       // Debug: Check if address data is missing
       if (profileData && (!profileData.address && !profileData.city && !profileData.state && !profileData.zip_code)) {
         console.warn('⚠️ Address data is missing for this user profile');
         console.log('Full profile data:', profileData);
         
+        // Run detailed check
+        await checkProfileData(userId);
+        
         // Run diagnostic on all user data
         const diagnosticResult = await fixExistingUserData();
         console.log('Diagnostic result:', diagnosticResult);
+      } else if (profileData) {
+        console.log('✅ Address data found in profile');
+        
+        // Still run check to show what data exists
+        await checkProfileData(userId);
       }
 
       setProfile(profileData);
       setUserStats(statsData);
     } catch (error) {
-      console.error('Failed to load profile data:', error);
+      console.error('❌ Failed to load profile data:', error);
       setErrors({ general: `Failed to load profile data: ${error.message}` });
     } finally {
       setIsLoading(false);

@@ -126,7 +126,7 @@ const LoginForm = ({ onLogin = () => {} }) => {
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Email Field */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1">
+        <label htmlFor="email" className="block text-sm font-medium text-white mb-1">
           Email Address
         </label>
         <input
@@ -138,16 +138,16 @@ const LoginForm = ({ onLogin = () => {} }) => {
           onChange={handleInputChange}
           required
           autoComplete="email"
-          className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors bg-input text-foreground placeholder:text-muted-foreground"
+          className="w-full px-4 py-3 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors bg-white/10 text-white placeholder:text-gray-300 backdrop-blur-lg"
         />
         {errors?.email && (
-          <p className="mt-1 text-sm text-destructive">{errors?.email}</p>
+          <p className="mt-1 text-sm text-red-300">{errors?.email}</p>
         )}
       </div>
 
       {/* Password Field */}
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1">
+        <label htmlFor="password" className="block text-sm font-medium text-white mb-1">
           Password
         </label>
         <div className="relative">
@@ -160,19 +160,19 @@ const LoginForm = ({ onLogin = () => {} }) => {
             onChange={handleInputChange}
             required
             autoComplete="current-password"
-            className="w-full px-4 py-3 pr-12 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors bg-input text-foreground placeholder:text-muted-foreground"
+            className="w-full px-4 py-3 pr-12 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors bg-white/10 text-white placeholder:text-gray-300 backdrop-blur-lg"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300 hover:text-white transition-colors"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             <Icon name={showPassword ? "EyeOff" : "Eye"} size={20} />
           </button>
         </div>
         {errors?.password && (
-          <p className="mt-1 text-sm text-destructive">{errors?.password}</p>
+          <p className="mt-1 text-sm text-red-300">{errors?.password}</p>
         )}
       </div>
 
@@ -184,21 +184,21 @@ const LoginForm = ({ onLogin = () => {} }) => {
             name="rememberMe"
             checked={formData?.rememberMe}
             onChange={handleInputChange}
-            className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
+            className="h-4 w-4 text-blue-500 focus:ring-blue-400 border-white/20 rounded bg-white/10"
           />
-          <span className="ml-2 text-sm text-text-secondary">Remember me</span>
+          <span className="ml-2 text-sm text-gray-200">Remember me</span>
         </label>
-        <a href="#" className="text-sm text-primary hover:text-primary/80 transition-colors">
+        <a href="#" className="text-sm text-blue-300 hover:text-blue-200 transition-colors">
           Forgot password?
         </a>
       </div>
 
       {/* General Error Message */}
       {errors?.general && (
-        <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+        <div className="p-3 bg-red-500/10 border border-red-300/20 rounded-lg backdrop-blur-lg">
           <div className="flex items-center space-x-2">
-            <Icon name="AlertCircle" size={16} className="text-destructive" />
-            <p className="text-sm text-destructive">{errors?.general}</p>
+            <Icon name="AlertCircle" size={16} className="text-red-300" />
+            <p className="text-sm text-red-200">{errors?.general}</p>
           </div>
         </div>
       )}
@@ -207,7 +207,7 @@ const LoginForm = ({ onLogin = () => {} }) => {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+        className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg"
       >
         {isLoading ? (
           <>

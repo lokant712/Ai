@@ -157,6 +157,7 @@ class EmergencyService {
           address,
           city,
           state,
+          zip_code,
           latitude,
           longitude,
           created_at

@@ -66,6 +66,7 @@ class NearbyDonorService {
           total_donations,
           city,
           state,
+          zip_code,
           address,
           created_at
         `)

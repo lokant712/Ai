@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import Icon from '../../components/AppIcon';
@@ -6,9 +6,19 @@ import { supabase } from '../../lib/supabase';
 
 const UserRegistration = () => {
   const navigate = useNavigate();
+  const videoRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Attempt to play video on mount
+  React.useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(err => {
+        console.log('Video autoplay prevented:', err);
+      });
+    }
+  }, []);
   
   const [formData, setFormData] = useState({
     role: '',
@@ -21,10 +31,6 @@ const UserRegistration = () => {
     bloodType: '',
     hospitalName: '',
     hospitalLicense: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
     agreeToTerms: false
   });
 
@@ -127,24 +133,28 @@ const UserRegistration = () => {
         blood_type: formData.bloodType || null,
         hospital_name: formData.hospitalName || null,
         hospital_license: formData.hospitalLicense || null,
-        address: formData.address || null,
-        city: formData.city || null,
-        state: formData.state || null,
-        zip_code: formData.zipCode || null,
         is_active: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
 
-      console.log('Creating profile with data:', profileData);
+      console.log('📦 Creating profile with data:', profileData);
+      console.log('📍 Address data being saved:', {
+        address: null,
+        city: null,
+        state: null,
+        zip_code: null
+      });
 
       const { error: profileError } = await supabase
         .from('user_profiles')
         .insert(profileData);
 
       if (profileError) {
-        console.error('Profile creation error:', profileError);
+        console.error('❌ Profile creation error:', profileError);
         // Don't fail registration if profile creation fails - user can still log in
+      } else {
+        console.log('✅ Profile created successfully');
       }
 
       // Create user session
@@ -181,49 +191,67 @@ const UserRegistration = () => {
         <meta name="description" content="Join BloodLink community as a donor or hospital. Create your account to start saving lives through blood donation." />
       </Helmet>
       
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 flex items-center justify-center p-4">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-rose-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
+        {/* Video Background */}
+        <div className="absolute inset-0 z-0">
+          <video
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="w-full h-full object-cover"
+          >
+            <source src="/assets/BACKGROUND.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          {/* Dark overlay with blur */}
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-md"></div>
         </div>
 
-        <div className="relative w-full max-w-lg">
+        {/* Animated Background Blobs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-600/20 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-blue-400/20 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-4000"></div>
+        </div>
+
+        <div className="relative w-full max-w-lg z-10 my-8">
           {/* Logo and Brand */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center space-x-3 mb-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-red-500 to-pink-500 shadow-lg">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 shadow-lg">
                 <Icon name="Droplets" size={32} color="white" />
               </div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg">
                 BloodLink
               </h1>
             </div>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            <h2 className="text-2xl font-semibold text-white mb-2 drop-shadow-md">
               Create Your Account
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-200 drop-shadow-md">
               Join our community to save lives
             </p>
           </div>
 
-          {/* Registration Card */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+          {/* Registration Card - Glass Morphism */}
+          <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Role Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-white mb-3">
                   Account Type
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => handleInputChange({ target: { name: 'role', value: 'donor' } })}
-                    className={`p-4 rounded-lg border-2 transition-all ${
+                    className={`p-4 rounded-lg border-2 transition-all backdrop-blur-lg ${
                       formData.role === 'donor'
-                        ? 'border-red-500 bg-red-50 text-red-700'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-blue-400 bg-blue-500/30 text-white'
+                        : 'border-white/20 bg-white/5 text-gray-200 hover:border-white/30'
                     }`}
                   >
                     <div className="flex items-center space-x-2">
@@ -234,10 +262,10 @@ const UserRegistration = () => {
                   <button
                     type="button"
                     onClick={() => handleInputChange({ target: { name: 'role', value: 'hospital' } })}
-                    className={`p-4 rounded-lg border-2 transition-all ${
+                    className={`p-4 rounded-lg border-2 transition-all backdrop-blur-lg ${
                       formData.role === 'hospital'
-                        ? 'border-red-500 bg-red-50 text-red-700'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-blue-400 bg-blue-500/30 text-white'
+                        : 'border-white/20 bg-white/5 text-gray-200 hover:border-white/30'
                     }`}
                   >
                     <div className="flex items-center space-x-2">
@@ -247,14 +275,14 @@ const UserRegistration = () => {
                   </button>
                 </div>
                 {errors.role && (
-                  <p className="mt-1 text-sm text-red-600">{errors.role}</p>
+                  <p className="mt-1 text-sm text-red-300">{errors.role}</p>
                 )}
               </div>
 
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="firstName" className="block text-sm font-medium text-white mb-1">
                     First Name
                   </label>
                   <input
@@ -263,15 +291,15 @@ const UserRegistration = () => {
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-3 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors bg-white/10 text-white placeholder:text-gray-300 backdrop-blur-lg"
                     placeholder="John"
                   />
                   {errors.firstName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                    <p className="mt-1 text-sm text-red-300">{errors.firstName}</p>
                   )}
                 </div>
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="lastName" className="block text-sm font-medium text-white mb-1">
                     Last Name
                   </label>
                   <input
@@ -280,18 +308,18 @@ const UserRegistration = () => {
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-3 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors bg-white/10 text-white placeholder:text-gray-300 backdrop-blur-lg"
                     placeholder="Doe"
                   />
                   {errors.lastName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
+                    <p className="mt-1 text-sm text-red-300">{errors.lastName}</p>
                   )}
                 </div>
               </div>
 
               {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="email" className="block text-sm font-medium text-white mb-1">
                   Email Address
                 </label>
                 <input
@@ -300,17 +328,17 @@ const UserRegistration = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-3 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors bg-white/10 text-white placeholder:text-gray-300 backdrop-blur-lg"
                   placeholder="john@example.com"
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                  <p className="mt-1 text-sm text-red-300">{errors.email}</p>
                 )}
               </div>
 
               {/* Phone */}
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="phone" className="block text-sm font-medium text-white mb-1">
                   Phone Number
                 </label>
                 <input
@@ -319,18 +347,18 @@ const UserRegistration = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+                  className="w-full px-4 py-3 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors bg-white/10 text-white placeholder:text-gray-300 backdrop-blur-lg"
                   placeholder="+1 (555) 123-4567"
                 />
                 {errors.phone && (
-                  <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                  <p className="mt-1 text-sm text-red-300">{errors.phone}</p>
                 )}
               </div>
 
               {/* Blood Type (for donors) */}
               {formData.role === 'donor' && (
                 <div>
-                  <label htmlFor="bloodType" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="bloodType" className="block text-sm font-medium text-white mb-1">
                     Blood Type
                   </label>
                   <select
@@ -338,17 +366,20 @@ const UserRegistration = () => {
                     name="bloodType"
                     value={formData.bloodType}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-3 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors bg-white/10 text-white backdrop-blur-lg"
+                    style={{
+                      colorScheme: 'dark'
+                    }}
                   >
-                    <option value="">Select your blood type</option>
+                    <option value="" className="bg-gray-800 text-white">Select your blood type</option>
                     {bloodTypeOptions.map(option => (
-                      <option key={option.value} value={option.value}>
+                      <option key={option.value} value={option.value} className="bg-gray-800 text-white">
                         {option.label}
                       </option>
                     ))}
                   </select>
                   {errors.bloodType && (
-                    <p className="mt-1 text-sm text-red-600">{errors.bloodType}</p>
+                    <p className="mt-1 text-sm text-red-300">{errors.bloodType}</p>
                   )}
                 </div>
               )}
@@ -356,7 +387,7 @@ const UserRegistration = () => {
               {/* Hospital Name (for hospitals) */}
               {formData.role === 'hospital' && (
                 <div>
-                  <label htmlFor="hospitalName" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="hospitalName" className="block text-sm font-medium text-white mb-1">
                     Hospital Name
                   </label>
                   <input
@@ -365,11 +396,11 @@ const UserRegistration = () => {
                     name="hospitalName"
                     value={formData.hospitalName}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-3 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors bg-white/10 text-white placeholder:text-gray-300 backdrop-blur-lg"
                     placeholder="City General Hospital"
                   />
                   {errors.hospitalName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.hospitalName}</p>
+                    <p className="mt-1 text-sm text-red-300">{errors.hospitalName}</p>
                   )}
                 </div>
               )}
@@ -377,7 +408,7 @@ const UserRegistration = () => {
               {/* Hospital License (for hospitals) */}
               {formData.role === 'hospital' && (
                 <div>
-                  <label htmlFor="hospitalLicense" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="hospitalLicense" className="block text-sm font-medium text-white mb-1">
                     Hospital License Number
                   </label>
                   <input
@@ -386,78 +417,16 @@ const UserRegistration = () => {
                     name="hospitalLicense"
                     value={formData.hospitalLicense}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-3 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors bg-white/10 text-white placeholder:text-gray-300 backdrop-blur-lg"
                     placeholder="Enter license number"
                   />
                 </div>
               )}
 
-              {/* Address Fields */}
-              <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                  Address
-                </label>
-                <input
-                  id="address"
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
-                  placeholder="123 Main Street"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-                    City
-                  </label>
-                  <input
-                    id="city"
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
-                    placeholder="New York"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
-                    State
-                  </label>
-                  <input
-                    id="state"
-                    type="text"
-                    name="state"
-                    value={formData.state}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
-                    placeholder="NY"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
-                  ZIP Code
-                </label>
-                <input
-                  id="zipCode"
-                  type="text"
-                  name="zipCode"
-                  value={formData.zipCode}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
-                  placeholder="10001"
-                />
-              </div>
-
               {/* Password Fields */}
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="password" className="block text-sm font-medium text-white mb-1">
                     Password
                   </label>
                   <div className="relative">
@@ -467,23 +436,23 @@ const UserRegistration = () => {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-3 pr-12 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors bg-white/10 text-white placeholder:text-gray-300 backdrop-blur-lg"
                       placeholder="Create a strong password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300 hover:text-white transition-colors"
                     >
                       <Icon name={showPassword ? "EyeOff" : "Eye"} size={20} />
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                    <p className="mt-1 text-sm text-red-300">{errors.password}</p>
                   )}
                 </div>
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-white mb-1">
                     Confirm Password
                   </label>
                   <div className="relative">
@@ -493,19 +462,19 @@ const UserRegistration = () => {
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-3 pr-12 border border-white/20 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-colors bg-white/10 text-white placeholder:text-gray-300 backdrop-blur-lg"
                       placeholder="Confirm your password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300 hover:text-white transition-colors"
                     >
                       <Icon name={showConfirmPassword ? "EyeOff" : "Eye"} size={20} />
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                    <p className="mt-1 text-sm text-red-300">{errors.confirmPassword}</p>
                   )}
                 </div>
               </div>
@@ -518,28 +487,28 @@ const UserRegistration = () => {
                   name="agreeToTerms"
                   checked={formData.agreeToTerms}
                   onChange={handleInputChange}
-                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded mt-1"
+                  className="h-4 w-4 text-blue-500 focus:ring-blue-400 border-white/20 rounded bg-white/10 mt-1"
                 />
-                <label htmlFor="agreeToTerms" className="text-sm text-gray-600">
+                <label htmlFor="agreeToTerms" className="text-sm text-gray-200">
                   I agree to the{' '}
-                  <a href="#" className="text-red-600 hover:text-red-500 underline">
+                  <a href="#" className="text-blue-300 hover:text-blue-200 underline">
                     Terms of Service
                   </a>{' '}
                   and{' '}
-                  <a href="#" className="text-red-600 hover:text-red-500 underline">
+                  <a href="#" className="text-blue-300 hover:text-blue-200 underline">
                     Privacy Policy
                   </a>
                 </label>
               </div>
               {errors.agreeToTerms && (
-                <p className="text-sm text-red-600">{errors.agreeToTerms}</p>
+                <p className="text-sm text-red-300">{errors.agreeToTerms}</p>
               )}
 
               {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white py-3 px-4 rounded-lg font-medium hover:from-red-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg"
               >
                 {isLoading ? (
                   <>
@@ -556,10 +525,10 @@ const UserRegistration = () => {
 
               {/* Error Display */}
               {errors.submit && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="p-3 bg-red-500/10 border border-red-300/20 rounded-lg backdrop-blur-lg">
                   <div className="flex items-center space-x-2">
-                    <Icon name="AlertCircle" size={16} className="text-red-600" />
-                    <p className="text-sm text-red-600">{errors.submit}</p>
+                    <Icon name="AlertCircle" size={16} className="text-red-300" />
+                    <p className="text-sm text-red-200">{errors.submit}</p>
                   </div>
                 </div>
               )}
@@ -567,11 +536,11 @@ const UserRegistration = () => {
 
             {/* Login Link */}
             <div className="text-center mt-6">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-200">
                 Already have an account?{' '}
                 <Link 
                   to="/user-login" 
-                  className="text-red-600 hover:text-red-500 font-medium transition-colors"
+                  className="text-blue-300 hover:text-blue-200 font-medium transition-colors"
                 >
                   Sign in here
                 </Link>
@@ -581,7 +550,7 @@ const UserRegistration = () => {
 
           {/* Footer */}
           <div className="text-center mt-8">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-300 drop-shadow-md">
               © {new Date().getFullYear()} BloodLink. Connecting lives through blood donation.
             </p>
           </div>

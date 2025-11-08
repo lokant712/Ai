@@ -4,6 +4,8 @@ class ProfileService {
   // Get user profile
   async getUserProfile(userId) {
     try {
+      console.log('🔍 Fetching profile for user ID:', userId);
+      
       const { data: profile, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -11,14 +13,21 @@ class ProfileService {
         .single();
 
       if (error) {
-        console.error('Error fetching user profile:', error);
+        console.error('❌ Error fetching user profile:', error);
         return null;
       }
 
-      console.log('Loaded profile data:', profile);
+      console.log('📋 RAW profile data from database:', profile);
+      console.log('📍 Address fields from DB:', {
+        address: profile?.address,
+        city: profile?.city,
+        state: profile?.state,
+        zip_code: profile?.zip_code
+      });
+      
       return profile;
     } catch (error) {
-      console.error('Error in getUserProfile:', error);
+      console.error('❌ Error in getUserProfile:', error);
       return null;
     }
   }
@@ -52,10 +61,21 @@ class ProfileService {
           ? profileData.gender 
           : null;
       }
-      if (profileData.address !== undefined) updateData.address = profileData.address;
-      if (profileData.city !== undefined) updateData.city = profileData.city;
-      if (profileData.state !== undefined) updateData.state = profileData.state;
-      if (profileData.zipCode !== undefined) updateData.zip_code = profileData.zipCode;
+      
+      // Address fields - keep as strings, allow empty strings
+      if (profileData.address !== undefined) {
+        updateData.address = profileData.address || null;
+      }
+      if (profileData.city !== undefined) {
+        updateData.city = profileData.city || null;
+      }
+      if (profileData.state !== undefined) {
+        updateData.state = profileData.state || null;
+      }
+      if (profileData.zipCode !== undefined) {
+        updateData.zip_code = profileData.zipCode || null;
+      }
+      
       if (profileData.isAvailable !== undefined) updateData.is_available = profileData.isAvailable;
       if (profileData.hospitalName !== undefined) updateData.hospital_name = profileData.hospitalName;
       if (profileData.hospitalLicense !== undefined) updateData.hospital_license = profileData.hospitalLicense;

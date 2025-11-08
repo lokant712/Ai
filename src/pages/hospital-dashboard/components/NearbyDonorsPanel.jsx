@@ -217,10 +217,12 @@ const NearbyDonorsPanel = ({ requestData, onDonorSelect, onClose }) => {
                       <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                         <div>
                           <p><strong>Phone:</strong> {donor.phone || 'Not provided'}</p>
-                          <p><strong>Location:</strong> {donor.city}, {donor.state}</p>
+                          <p><strong>Address:</strong> {donor.address || 'Not provided'}</p>
+                          <p><strong>Location:</strong> {donor.city}, {donor.state} {donor.zip_code}</p>
                         </div>
                         <div>
                           <p><strong>Donations:</strong> {donor.total_donations || 0}</p>
+                          <p><strong>Distance:</strong> {donor.distanceFormatted}</p>
                           <p><strong>Travel Time:</strong> {donor.travelTime.formatted}</p>
                         </div>
                       </div>

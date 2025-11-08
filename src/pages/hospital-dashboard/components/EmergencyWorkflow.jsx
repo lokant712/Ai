@@ -55,8 +55,10 @@ const EmergencyWorkflow = ({ requestId, requestData, onClose }) => {
         totalDonations: donor.total_donations || 0,
         lastDonationDate: donor.last_donation_date,
         isAvailable: donor.is_available,
+        address: donor.address,
         city: donor.city,
         state: donor.state,
+        zip_code: donor.zip_code,
         latitude: donor.latitude,
         longitude: donor.longitude,
         isEligible: donor.isEligible,
@@ -386,12 +388,12 @@ const EmergencyWorkflow = ({ requestId, requestData, onClose }) => {
                                   {donor.email}
                                 </p>
                               )}
-                              {(donor.address || donor.city || donor.state) && (
+                              {(donor.address || donor.city || donor.state || donor.zip_code) && (
                                 <p className="text-xs text-gray-500 flex items-center">
                                   <Icon name="MapPin" size={12} className="mr-1 text-red-600" />
                                   {donor.address ? 
-                                    `${donor.address}${donor.city ? `, ${donor.city}` : ''}${donor.state ? `, ${donor.state}` : ''}` :
-                                    donor.city && donor.state ? `${donor.city}, ${donor.state}` : donor.city || donor.state
+                                    `${donor.address}${donor.city ? `, ${donor.city}` : ''}${donor.state ? `, ${donor.state}` : ''}${donor.zip_code ? ` ${donor.zip_code}` : ''}` :
+                                    `${donor.city || ''}${donor.city && donor.state ? ', ' : ''}${donor.state || ''}${donor.zip_code ? ` ${donor.zip_code}` : ''}`
                                   }
                                 </p>
                               )}

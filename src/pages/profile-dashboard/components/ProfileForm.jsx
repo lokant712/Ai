@@ -37,6 +37,12 @@ const ProfileForm = ({
   useEffect(() => {
     if (profile) {
       console.log('Setting form data from profile:', profile);
+      console.log('Address data:', {
+        address: profile.address,
+        city: profile.city,
+        state: profile.state,
+        zip_code: profile.zip_code
+      });
       setFormData({
         fullName: profile.full_name || user?.name || '',
         email: user?.email || '',
